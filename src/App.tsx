@@ -90,9 +90,9 @@ function App() {
       const newNote = await noteApi.create({
         title: "Untitled Note",
         content: "# New Note\n\nStart writing...",
-        content_type: "Markdown",
+        contentType: "Markdown",
         tags: null,
-      });
+      } as any);
       console.log("Note created successfully:", newNote);
       setNotes([newNote, ...notes]);
       setCurrentNote(newNote);
