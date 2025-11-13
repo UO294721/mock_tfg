@@ -91,6 +91,7 @@ function App() {
         title: "Untitled Note",
         content: "# New Note\n\nStart writing...",
         content_type: "Markdown",
+        tags: null,
       });
       console.log("Note created successfully:", newNote);
       setNotes([newNote, ...notes]);

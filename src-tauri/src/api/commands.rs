@@ -18,17 +18,27 @@ pub async fn create_note(
     content_type: ContentType,
     tags: Option<Vec<String>>,
 ) -> Result<Note, String> {
+    println!("=== CREATE NOTE CALLED ===");
+    println!("Title: {}", title);
+    println!("Content length: {}", content.len());
+    println!("Content type: {:?}", content_type);
+    println!("Tags: {:?}", tags);
+
     let request = CreateNoteRequest {
         title,
         content,
         content_type,
         tags,
     };
-    state
+
+    let result = state
         .note_service
         .read()
         .create_note(request)
-        .map_err(|e| e.to_string())
+        .map_err(|e| e.to_string());
+
+    println!("Result: {:?}", result.as_ref().map(|n| &n.id));
+    result
 }
 
 #[tauri::command]
