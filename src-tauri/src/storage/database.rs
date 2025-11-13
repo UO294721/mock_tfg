@@ -47,10 +47,14 @@ impl Database {
     where
         F: FnOnce(&Connection) -> StorageResult<R>,
     {
+        println!("[Database] Attempting to acquire read lock...");
         let conn = self.conn.lock().map_err(|_| {
             StorageError::InvalidOperation("Failed to acquire database lock".to_string())
         })?;
-        f(&conn)
+        println!("[Database] Read lock acquired");
+        let result = f(&conn);
+        println!("[Database] Read operation completed, releasing lock");
+        result
     }
 
     /// Execute a closure with write access to the connection
@@ -58,10 +62,26 @@ impl Database {
     where
         F: FnOnce(&Connection) -> StorageResult<R>,
     {
-        let conn = self.conn.lock().map_err(|_| {
-            StorageError::InvalidOperation("Failed to acquire database lock".to_string())
-        })?;
-        f(&conn)
+        println!("[Database] Attempting to acquire write lock...");
+
+        // Try to acquire the lock with logging
+        match self.conn.try_lock() {
+            Ok(conn) => {
+                println!("[Database] Write lock acquired successfully");
+                let result = f(&conn);
+                println!("[Database] Write operation completed, releasing lock");
+                result
+            }
+            Err(_) => {
+                println!("[Database] FAILED to acquire lock - another operation is holding it!");
+                println!("[Database] Waiting for lock...");
+                let conn = self.conn.lock().map_err(|_| {
+                    StorageError::InvalidOperation("Failed to acquire database lock".to_string())
+                })?;
+                println!("[Database] Lock finally acquired after waiting");
+                f(&conn)
+            }
+        }
     }
 
     /// Execute a transaction
