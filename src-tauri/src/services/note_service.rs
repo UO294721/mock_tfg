@@ -16,15 +16,22 @@ impl NoteService {
 
     /// Create a new note
     pub fn create_note(&self, request: CreateNoteRequest) -> ServiceResult<Note> {
+        println!("[NoteService] Creating note object...");
         let mut note = Note::new(request.title, request.content, request.content_type);
 
         if let Some(tags) = request.tags {
             note.tags = tags;
         }
 
+        println!("[NoteService] Calling repository.create with ID: {}", note.id);
         self.repository.create(&note)?;
-        self.cache.put_note(note.clone());
+        println!("[NoteService] Repository create succeeded");
 
+        println!("[NoteService] Adding to cache...");
+        self.cache.put_note(note.clone());
+        println!("[NoteService] Cache updated");
+
+        println!("[NoteService] Returning note");
         Ok(note)
     }
 

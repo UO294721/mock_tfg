@@ -17,7 +17,9 @@ impl NoteRepository {
 
     /// Create a new note
     pub fn create(&self, note: &Note) -> StorageResult<()> {
+        println!("[Repository] Acquiring database write lock...");
         self.db.write(|conn| {
+            println!("[Repository] Lock acquired, executing INSERT...");
             conn.execute(
                 "INSERT INTO notes (id, title, content, content_type, created_at, updated_at,
                  word_count, read_time_minutes, is_pinned, is_archived, color, icon, parent_id)
@@ -38,11 +40,14 @@ impl NoteRepository {
                     note.metadata.parent_id.map(|id| id.to_string()),
                 ],
             )?;
+            println!("[Repository] INSERT succeeded");
 
             // Insert tags
+            println!("[Repository] Inserting {} tags", note.tags.len());
             for tag in &note.tags {
                 self.add_tag_to_note_internal(conn, note.id, tag)?;
             }
+            println!("[Repository] Tags inserted");
 
             Ok(())
         })
