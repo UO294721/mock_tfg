@@ -31,14 +31,18 @@ pub async fn create_note(
         tags,
     };
 
-    let result = state
-        .note_service
-        .read()
-        .create_note(request)
-        .map_err(|e| e.to_string());
+    println!("About to acquire note_service lock...");
+    let service = state.note_service.read();
+    println!("Lock acquired, calling create_note...");
 
-    println!("Result: {:?}", result.as_ref().map(|n| &n.id));
-    result
+    let result = service.create_note(request);
+
+    match &result {
+        Ok(note) => println!("Note created successfully with ID: {}", note.id),
+        Err(e) => println!("Error creating note: {}", e),
+    }
+
+    result.map_err(|e| e.to_string())
 }
 
 #[tauri::command]
