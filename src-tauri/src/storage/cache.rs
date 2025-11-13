@@ -6,6 +6,7 @@ use uuid::Uuid;
 use crate::domain::*;
 
 /// Multi-level cache system for high-performance note access
+#[derive(Clone)]
 pub struct CacheManager {
     note_cache: Arc<RwLock<LruCache<Uuid, Note>>>,
     graph_cache: Arc<RwLock<Option<KnowledgeGraph>>>,

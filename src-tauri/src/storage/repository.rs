@@ -5,6 +5,7 @@ use uuid::Uuid;
 use chrono::{DateTime, Utc};
 
 /// Repository for note operations
+#[derive(Clone)]
 pub struct NoteRepository {
     db: Database,
 }
@@ -316,6 +317,7 @@ impl NoteRepository {
 }
 
 /// Repository for graph operations
+#[derive(Clone)]
 pub struct GraphRepository {
     db: Database,
 }
