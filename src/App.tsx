@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useAppStore, useNotesStore } from "@/lib/store";
 import { noteApi, databaseApi } from "@/lib/api";
 import { Button } from "@/components/ui/Button";
@@ -21,6 +21,8 @@ function App() {
   const { sidebarOpen, darkMode, toggleSidebar, toggleGraph, graphVisible } = useAppStore();
   const { notes, currentNote, loading, setNotes, setCurrentNote, setLoading } = useNotesStore();
   const [searchQuery, setSearchQuery] = useState("");
+  const [editorContent, setEditorContent] = useState("");
+  const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     // Apply dark mode
@@ -35,6 +37,24 @@ function App() {
     // Load initial notes
     loadNotes();
     loadStats();
+  }, []);
+
+  // Sync editor content when current note changes
+  useEffect(() => {
+    if (currentNote) {
+      setEditorContent(currentNote.content);
+    } else {
+      setEditorContent("");
+    }
+  }, [currentNote?.id]);
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (saveTimeoutRef.current) {
+        clearTimeout(saveTimeoutRef.current);
+      }
+    };
   }, []);
 
   const loadNotes = async () => {
@@ -81,7 +101,21 @@ function App() {
     }
   };
 
-  const updateCurrentNote = async (content: string) => {
+  const handleContentChange = (content: string) => {
+    setEditorContent(content);
+
+    // Clear existing timeout
+    if (saveTimeoutRef.current) {
+      clearTimeout(saveTimeoutRef.current);
+    }
+
+    // Set new timeout to save after user stops typing
+    saveTimeoutRef.current = setTimeout(() => {
+      saveNote(content);
+    }, 1000); // Save 1 second after user stops typing
+  };
+
+  const saveNote = async (content: string) => {
     if (!currentNote) return;
 
     try {
@@ -90,8 +124,11 @@ function App() {
         content,
       });
       setCurrentNote(updated);
+
+      // Update in the notes list
+      setNotes(notes.map(n => n.id === updated.id ? updated : n));
     } catch (error) {
-      console.error("Failed to update note:", error);
+      console.error("Failed to save note:", error);
     }
   };
 
@@ -187,8 +224,8 @@ function App() {
           {currentNote ? (
             <div className="max-w-4xl mx-auto">
               <textarea
-                value={currentNote.content}
-                onChange={(e) => updateCurrentNote(e.target.value)}
+                value={editorContent}
+                onChange={(e) => handleContentChange(e.target.value)}
                 className="w-full h-full min-h-[600px] bg-transparent border-none outline-none resize-none font-mono text-sm"
                 placeholder="Start writing..."
               />
