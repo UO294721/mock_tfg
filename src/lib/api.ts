@@ -17,13 +17,13 @@ import type {
 // Note API
 export const noteApi = {
   create: (request: CreateNoteRequest): Promise<Note> =>
-    invoke("create_note", { request }),
+    invoke("create_note", request),
 
   get: (id: string): Promise<Note> =>
     invoke("get_note", { id }),
 
   update: (request: UpdateNoteRequest): Promise<Note> =>
-    invoke("update_note", { request }),
+    invoke("update_note", request),
 
   delete: (id: string): Promise<void> =>
     invoke("delete_note", { id }),

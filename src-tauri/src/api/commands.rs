@@ -13,8 +13,17 @@ use uuid::Uuid;
 #[tauri::command]
 pub async fn create_note(
     state: State<'_, AppState>,
-    request: CreateNoteRequest,
+    title: String,
+    content: String,
+    content_type: ContentType,
+    tags: Option<Vec<String>>,
 ) -> Result<Note, String> {
+    let request = CreateNoteRequest {
+        title,
+        content,
+        content_type,
+        tags,
+    };
     state
         .note_service
         .read()
@@ -35,8 +44,20 @@ pub async fn get_note(state: State<'_, AppState>, id: String) -> Result<Note, St
 #[tauri::command]
 pub async fn update_note(
     state: State<'_, AppState>,
-    request: UpdateNoteRequest,
+    id: String,
+    title: Option<String>,
+    content: Option<String>,
+    tags: Option<Vec<String>>,
+    metadata: Option<NoteMetadata>,
 ) -> Result<Note, String> {
+    let uuid = Uuid::parse_str(&id).map_err(|e| e.to_string())?;
+    let request = UpdateNoteRequest {
+        id: uuid,
+        title,
+        content,
+        tags,
+        metadata,
+    };
     state
         .note_service
         .read()
