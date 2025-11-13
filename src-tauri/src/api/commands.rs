@@ -2,6 +2,7 @@ use crate::api::AppState;
 use crate::domain::*;
 use crate::graph::*;
 use crate::services::*;
+use crate::storage::DatabaseStats;
 use tauri::State;
 use uuid::Uuid;
 

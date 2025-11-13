@@ -1,4 +1,4 @@
-use super::{ServiceError, ServiceResult};
+use super::ServiceResult;
 use crate::domain::*;
 use crate::storage::*;
 use uuid::Uuid;

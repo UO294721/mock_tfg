@@ -1,8 +1,7 @@
 use crate::domain::*;
 use petgraph::graph::{DiGraph, NodeIndex};
-use petgraph::visit::Bfs;
 use petgraph::Direction;
-use std::collections::{HashMap, HashSet, VecDeque};
+use std::collections::{HashMap, VecDeque};
 use uuid::Uuid;
 
 /// High-performance graph engine for knowledge graph operations

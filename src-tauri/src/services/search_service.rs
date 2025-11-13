@@ -1,8 +1,7 @@
-use super::{ServiceError, ServiceResult};
+use super::ServiceResult;
 use crate::domain::*;
 use crate::storage::*;
 use uuid::Uuid;
-use std::collections::HashMap;
 
 /// Service for advanced search operations
 pub struct SearchService {
@@ -110,7 +109,7 @@ impl SearchService {
     }
 
     /// Get tag suggestions based on partial input
-    pub fn suggest_tags(&self, partial: &str, limit: usize) -> ServiceResult<Vec<String>> {
+    pub fn suggest_tags(&self, _partial: &str, _limit: usize) -> ServiceResult<Vec<String>> {
         // This would require a tags table query - simplified for now
         Ok(Vec::new())
     }

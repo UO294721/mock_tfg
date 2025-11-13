@@ -1,5 +1,4 @@
 use crate::domain::*;
-use std::collections::HashMap;
 use uuid::Uuid;
 
 /// Graph analysis and insights generation

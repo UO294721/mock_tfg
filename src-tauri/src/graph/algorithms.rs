@@ -1,5 +1,5 @@
 use crate::domain::*;
-use std::collections::{HashMap, HashSet, VecDeque};
+use std::collections::{HashMap, HashSet};
 use uuid::Uuid;
 
 /// Advanced graph algorithms for knowledge graph analysis
