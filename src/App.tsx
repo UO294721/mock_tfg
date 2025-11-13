@@ -58,37 +58,46 @@ function App() {
   }, []);
 
   const loadNotes = async () => {
+    console.log("Loading notes...");
     try {
       setLoading(true);
       const loadedNotes = await noteApi.list(0, 50);
+      console.log("Notes loaded:", loadedNotes.length);
       setNotes(loadedNotes);
     } catch (error) {
       console.error("Failed to load notes:", error);
+      // Don't fail silently - show empty state
+      setNotes([]);
     } finally {
       setLoading(false);
     }
   };
 
   const loadStats = async () => {
+    console.log("Loading stats...");
     try {
       const stats = await databaseApi.getStats();
       console.log("Database stats:", stats);
     } catch (error) {
       console.error("Failed to load stats:", error);
+      // Stats are not critical, continue anyway
     }
   };
 
   const createNewNote = async () => {
+    console.log("Creating new note...");
     try {
       const newNote = await noteApi.create({
         title: "Untitled Note",
         content: "# New Note\n\nStart writing...",
         content_type: "Markdown",
       });
+      console.log("Note created successfully:", newNote);
       setNotes([newNote, ...notes]);
       setCurrentNote(newNote);
     } catch (error) {
       console.error("Failed to create note:", error);
+      alert(`Failed to create note: ${error}`);
     }
   };
 
