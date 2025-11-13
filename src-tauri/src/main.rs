@@ -4,30 +4,38 @@
 use knowledge_notes::api::*;
 use knowledge_notes::storage::Database;
 use std::path::PathBuf;
-use tracing_subscriber;
 
 fn main() {
     // Initialize logging
     tracing_subscriber::fmt::init();
 
-    // Get app data directory
-    let app_data_dir = tauri::api::path::app_data_dir(&tauri::Config::default())
-        .unwrap_or_else(|| PathBuf::from("."));
-
-    std::fs::create_dir_all(&app_data_dir).expect("Failed to create app data directory");
-
-    let db_path = app_data_dir.join("knowledge-notes.db");
-
-    // Initialize database
-    let database = Database::new(&db_path).expect("Failed to initialize database");
-
-    // Create application state
-    let app_state = AppState::new(database);
-
     // Build and run Tauri application
     tauri::Builder::default()
-        .manage(app_state)
         .plugin(tauri_plugin_shell::init())
+        .setup(|app| {
+            // Get app data directory
+            let app_data_dir = app
+                .path()
+                .app_data_dir()
+                .unwrap_or_else(|_| PathBuf::from("."));
+
+            std::fs::create_dir_all(&app_data_dir)
+                .expect("Failed to create app data directory");
+
+            let db_path = app_data_dir.join("knowledge-notes.db");
+
+            // Initialize database
+            let database = Database::new(&db_path)
+                .expect("Failed to initialize database");
+
+            // Create application state
+            let app_state = AppState::new(database);
+
+            // Store state in app
+            app.manage(app_state);
+
+            Ok(())
+        })
         .invoke_handler(tauri::generate_handler![
             // Note commands
             commands::create_note,
