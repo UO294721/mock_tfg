@@ -4,6 +4,7 @@
 use knowledge_notes::api::*;
 use knowledge_notes::storage::Database;
 use std::path::PathBuf;
+use tauri::Manager;
 
 fn main() {
     // Initialize logging

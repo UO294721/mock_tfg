@@ -138,7 +138,7 @@ impl Database {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct DatabaseStats {
     pub note_count: usize,
     pub archived_count: usize,
