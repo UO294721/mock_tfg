@@ -28,29 +28,29 @@ CREATE INDEX IF NOT EXISTS idx_notes_parent_id ON notes(parent_id);
 CREATE INDEX IF NOT EXISTS idx_notes_is_pinned ON notes(is_pinned) WHERE is_pinned = 1;
 CREATE INDEX IF NOT EXISTS idx_notes_is_archived ON notes(is_archived) WHERE is_archived = 0;
 
--- Full-text search table for note content
-CREATE VIRTUAL TABLE IF NOT EXISTS notes_fts USING fts5(
-    note_id UNINDEXED,
-    title,
-    content,
-    tokenize = 'porter unicode61'
-);
+-- Full-text search table for note content (TEMPORARILY DISABLED)
+-- CREATE VIRTUAL TABLE IF NOT EXISTS notes_fts USING fts5(
+--     note_id UNINDEXED,
+--     title,
+--     content,
+--     tokenize = 'porter unicode61'
+-- );
 
--- Triggers to keep FTS table in sync
-CREATE TRIGGER IF NOT EXISTS notes_fts_insert AFTER INSERT ON notes BEGIN
-    INSERT INTO notes_fts(note_id, title, content)
-    VALUES (new.id, new.title, new.content);
-END;
+-- Triggers to keep FTS table in sync (TEMPORARILY DISABLED)
+-- CREATE TRIGGER IF NOT EXISTS notes_fts_insert AFTER INSERT ON notes BEGIN
+--     INSERT INTO notes_fts(note_id, title, content)
+--     VALUES (new.id, new.title, new.content);
+-- END;
 
-CREATE TRIGGER IF NOT EXISTS notes_fts_update AFTER UPDATE ON notes BEGIN
-    UPDATE notes_fts
-    SET title = new.title, content = new.content
-    WHERE note_id = new.id;
-END;
+-- CREATE TRIGGER IF NOT EXISTS notes_fts_update AFTER UPDATE ON notes BEGIN
+--     UPDATE notes_fts
+--     SET title = new.title, content = new.content
+--     WHERE note_id = new.id;
+-- END;
 
-CREATE TRIGGER IF NOT EXISTS notes_fts_delete AFTER DELETE ON notes BEGIN
-    DELETE FROM notes_fts WHERE note_id = old.id;
-END;
+-- CREATE TRIGGER IF NOT EXISTS notes_fts_delete AFTER DELETE ON notes BEGIN
+--     DELETE FROM notes_fts WHERE note_id = old.id;
+-- END;
 
 -- Tags table
 CREATE TABLE IF NOT EXISTS tags (
@@ -136,7 +136,4 @@ PRAGMA journal_mode = WAL;
 PRAGMA synchronous = NORMAL;
 PRAGMA cache_size = -64000;
 PRAGMA temp_store = MEMORY;
-PRAGMA mmap_size = 268435456;
-PRAGMA page_size = 4096;
-PRAGMA optimize;
 "#;
