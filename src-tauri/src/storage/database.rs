@@ -1,14 +1,13 @@
 use rusqlite::{Connection, OpenFlags};
 use std::path::Path;
 use std::sync::{Arc, Mutex};
-use parking_lot::RwLock;
 use super::{StorageError, StorageResult};
 use super::schema::{INIT_SCHEMA, PRAGMAS};
 
 /// Thread-safe database connection wrapper
 #[derive(Clone)]
 pub struct Database {
-    conn: Arc<RwLock<Connection>>,
+    conn: Arc<Mutex<Connection>>,
 }
 
 impl Database {
@@ -28,7 +27,7 @@ impl Database {
         conn.execute_batch(INIT_SCHEMA)?;
 
         Ok(Self {
-            conn: Arc::new(RwLock::new(conn)),
+            conn: Arc::new(Mutex::new(conn)),
         })
     }
 
@@ -39,7 +38,7 @@ impl Database {
         conn.execute_batch(INIT_SCHEMA)?;
 
         Ok(Self {
-            conn: Arc::new(RwLock::new(conn)),
+            conn: Arc::new(Mutex::new(conn)),
         })
     }
 
@@ -48,7 +47,9 @@ impl Database {
     where
         F: FnOnce(&Connection) -> StorageResult<R>,
     {
-        let conn = self.conn.read();
+        let conn = self.conn.lock().map_err(|_| {
+            StorageError::InvalidOperation("Failed to acquire database lock".to_string())
+        })?;
         f(&conn)
     }
 
@@ -57,7 +58,9 @@ impl Database {
     where
         F: FnOnce(&Connection) -> StorageResult<R>,
     {
-        let conn = self.conn.write();
+        let conn = self.conn.lock().map_err(|_| {
+            StorageError::InvalidOperation("Failed to acquire database lock".to_string())
+        })?;
         f(&conn)
     }
 
@@ -66,7 +69,9 @@ impl Database {
     where
         F: FnOnce(&rusqlite::Transaction) -> StorageResult<R>,
     {
-        let mut conn = self.conn.write();
+        let mut conn = self.conn.lock().map_err(|_| {
+            StorageError::InvalidOperation("Failed to acquire database lock".to_string())
+        })?;
         let tx = conn.transaction()?;
         let result = f(&tx)?;
         tx.commit()?;

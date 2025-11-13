@@ -300,6 +300,7 @@ pub async fn find_hub_notes(
 #[tauri::command]
 pub async fn get_database_stats(state: State<'_, AppState>) -> Result<DatabaseStats, String> {
     state
+        .inner()
         .database
         .get_stats()
         .map_err(|e| e.to_string())
@@ -308,6 +309,7 @@ pub async fn get_database_stats(state: State<'_, AppState>) -> Result<DatabaseSt
 #[tauri::command]
 pub async fn optimize_database(state: State<'_, AppState>) -> Result<(), String> {
     state
+        .inner()
         .database
         .optimize()
         .map_err(|e| e.to_string())
